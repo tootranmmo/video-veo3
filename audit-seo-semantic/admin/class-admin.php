@@ -65,6 +65,15 @@ class Audit_SEO_Semantic_Admin {
 
         add_submenu_page(
             'audit-seo-semantic',
+            'SEO Issues',
+            'SEO Issues',
+            'manage_options',
+            'audit-seo-issues',
+            array($this, 'display_seo_issues')
+        );
+
+        add_submenu_page(
+            'audit-seo-semantic',
             'Settings',
             'Settings',
             'manage_options',
@@ -129,6 +138,13 @@ class Audit_SEO_Semantic_Admin {
      */
     public function display_content_audit() {
         include AUDIT_SEO_SEMANTIC_PATH . 'admin/views/content-audit.php';
+    }
+
+    /**
+     * Display SEO issues page
+     */
+    public function display_seo_issues() {
+        include AUDIT_SEO_SEMANTIC_PATH . 'admin/views/seo-issues.php';
     }
 
     /**
@@ -258,6 +274,42 @@ class Audit_SEO_Semantic_Admin {
         $analysis = Audit_SEO_Gutenberg::analyze_content_raw($title, $content, $focus_keyword);
 
         wp_send_json_success($analysis);
+    }
+
+    /**
+     * AJAX: Re-check duplicate content and keyword cannibalization
+     */
+    public function ajax_recheck_seo_issues() {
+        check_ajax_referer('audit_seo_nonce', 'nonce');
+
+        $post_id = intval($_POST['post_id']);
+
+        if (!$post_id) {
+            wp_send_json_error('Invalid post ID');
+        }
+
+        // Get post content and focus keyword
+        $post = get_post($post_id);
+        if (!$post) {
+            wp_send_json_error('Post not found');
+        }
+
+        $focus_keyword = get_post_meta($post_id, '_audit_seo_focus_keyword', true);
+
+        // Run duplicate check
+        $duplicate_result = Audit_SEO_Duplicate_Checker::check_duplicate($post_id, $post->post_content);
+
+        // Run cannibalization check
+        $cannibalization_result = array();
+        if (!empty($focus_keyword)) {
+            $cannibalization_result = Audit_SEO_Keyword_Cannibalization::check_cannibalization($post_id, $focus_keyword);
+        }
+
+        wp_send_json_success(array(
+            'duplicate' => $duplicate_result,
+            'cannibalization' => $cannibalization_result,
+            'message' => 'Re-check completed successfully'
+        ));
     }
 
     /**

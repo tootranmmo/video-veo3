@@ -115,6 +115,86 @@ class Audit_SEO_Meta_Box {
                 <?php endif; ?>
             </div>
 
+            <?php
+            // Check for warnings
+            $duplicate_result = Audit_SEO_Duplicate_Checker::get_results($post->ID);
+            $cannibalization_result = Audit_SEO_Keyword_Cannibalization::get_results($post->ID);
+            $has_warnings = false;
+
+            if (!empty($duplicate_result['has_duplicates']) || !empty($cannibalization_result['has_cannibalization'])) {
+                $has_warnings = true;
+            }
+            ?>
+
+            <?php if ($has_warnings): ?>
+            <!-- SEO Warnings -->
+            <div class="audit-seo-warnings">
+                <h4>⚠️ SEO Warnings</h4>
+
+                <?php if (!empty($duplicate_result['has_duplicates'])): ?>
+                <div class="audit-warning duplicate-warning">
+                    <div class="warning-header">
+                        <span class="dashicons dashicons-warning"></span>
+                        <strong>Duplicate Content Detected</strong>
+                    </div>
+                    <div class="warning-body">
+                        <p>Found <?php echo $duplicate_result['count']; ?> post(s) with similar content (<?php echo $duplicate_result['highest_similarity']; ?>% similarity)</p>
+                        <ul class="duplicate-list">
+                            <?php foreach (array_slice($duplicate_result['duplicates'], 0, 3) as $dup): ?>
+                                <li>
+                                    <a href="<?php echo get_edit_post_link($dup['post_id']); ?>" target="_blank">
+                                        <?php echo esc_html($dup['title']); ?>
+                                    </a>
+                                    - <?php echo $dup['similarity']; ?>% similar
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                        <?php if ($duplicate_result['count'] > 3): ?>
+                            <p><em>+ <?php echo ($duplicate_result['count'] - 3); ?> more...</em></p>
+                        <?php endif; ?>
+                        <p class="warning-tip">💡 Consider consolidating or significantly differentiating content.</p>
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <?php if (!empty($cannibalization_result['has_cannibalization'])): ?>
+                <div class="audit-warning cannibalization-warning severity-<?php echo $cannibalization_result['severity']; ?>">
+                    <div class="warning-header">
+                        <span class="dashicons dashicons-warning"></span>
+                        <strong>Keyword Cannibalization (<?php echo ucfirst($cannibalization_result['severity']); ?> Risk)</strong>
+                    </div>
+                    <div class="warning-body">
+                        <p><?php echo $cannibalization_result['competing_posts_count']; ?> other post(s) targeting "<strong><?php echo esc_html($cannibalization_result['focus_keyword']); ?></strong>"</p>
+                        <ul class="competing-posts-list">
+                            <?php foreach (array_slice($cannibalization_result['competing_posts'], 0, 3) as $competitor): ?>
+                                <li>
+                                    <a href="<?php echo get_edit_post_link($competitor['post_id']); ?>" target="_blank">
+                                        <?php echo esc_html($competitor['title']); ?>
+                                    </a>
+                                    <?php if ($competitor['match_type'] === 'similar'): ?>
+                                        <span class="match-badge">Similar</span>
+                                    <?php endif; ?>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                        <div class="warning-recommendations">
+                            <strong>Recommendations:</strong>
+                            <ul>
+                                <?php foreach ($cannibalization_result['recommendations'] as $rec): ?>
+                                    <li><?php echo esc_html($rec); ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <button type="button" class="button button-secondary audit-seo-recheck-btn">
+                    <span class="dashicons dashicons-update"></span> Re-check Now
+                </button>
+            </div>
+            <?php endif; ?>
+
             <!-- SERP Preview -->
             <div class="audit-seo-field">
                 <label><strong>Google Preview</strong></label>

@@ -14,6 +14,7 @@
             this.serpPreview();
             this.advancedToggle();
             this.quickAnalysis();
+            this.recheckIssues();
         },
 
         /**
@@ -191,6 +192,50 @@
 
             $('.audit-seo-results-container').html(html);
             $('#audit-seo-quick-results').slideDown();
+        },
+
+        /**
+         * Re-check duplicate content and keyword cannibalization
+         */
+        recheckIssues: function() {
+            $('.audit-seo-recheck-btn').on('click', function(e) {
+                e.preventDefault();
+
+                var button = $(this);
+                var postId = $('#post_ID').val();
+
+                if (!postId) {
+                    alert('Please save the post first.');
+                    return;
+                }
+
+                var originalText = button.html();
+                button.prop('disabled', true).html('<span class="dashicons dashicons-update audit-seo-spin"></span> Re-checking...');
+
+                $.ajax({
+                    url: auditSeoMetaBox.ajax_url,
+                    type: 'POST',
+                    data: {
+                        action: 'audit_seo_recheck_issues',
+                        nonce: auditSeoMetaBox.nonce,
+                        post_id: postId
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Reload the page to show updated warnings
+                            location.reload();
+                        } else {
+                            alert('Re-check failed: ' + response.data);
+                        }
+                    },
+                    error: function() {
+                        alert('An error occurred during re-check.');
+                    },
+                    complete: function() {
+                        button.prop('disabled', false).html(originalText);
+                    }
+                });
+            });
         }
     };
 
