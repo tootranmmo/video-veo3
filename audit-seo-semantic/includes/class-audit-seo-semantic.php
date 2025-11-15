@@ -43,6 +43,7 @@ class Audit_SEO_Semantic {
         require_once AUDIT_SEO_SEMANTIC_PATH . 'includes/class-gutenberg.php';
         require_once AUDIT_SEO_SEMANTIC_PATH . 'includes/class-ai-optimizer.php';
         require_once AUDIT_SEO_SEMANTIC_PATH . 'includes/class-pagespeed.php';
+        require_once AUDIT_SEO_SEMANTIC_PATH . 'includes/class-meta-box.php';
     }
 
     /**
@@ -61,6 +62,7 @@ class Audit_SEO_Semantic {
         add_action('wp_ajax_run_content_audit', array($admin, 'ajax_run_content_audit'));
         add_action('wp_ajax_save_backlink', array($admin, 'ajax_save_backlink'));
         add_action('wp_ajax_delete_backlink', array($admin, 'ajax_delete_backlink'));
+        add_action('wp_ajax_audit_seo_quick_analyze', array($admin, 'ajax_quick_analyze'));
     }
 
     /**

@@ -375,6 +375,58 @@ class Audit_SEO_Gutenberg {
 
         return rest_ensure_response($suggestions);
     }
+
+    /**
+     * Analyze content (raw - for AJAX calls)
+     */
+    public static function analyze_content_raw($title, $content, $focus_keyword = '') {
+        $analysis = array(
+            'score' => 0,
+            'checks' => array(),
+            'suggestions' => array()
+        );
+
+        // Analyze title
+        $title_analysis = self::analyze_title($title, $focus_keyword);
+        $analysis['checks']['title'] = $title_analysis;
+        $analysis['score'] += $title_analysis['score'];
+
+        // Analyze content length
+        $content_analysis = self::analyze_content_length($content);
+        $analysis['checks']['content_length'] = $content_analysis;
+        $analysis['score'] += $content_analysis['score'];
+
+        // Analyze keyword usage
+        if (!empty($focus_keyword)) {
+            $keyword_analysis = self::analyze_keyword($title, $content, $focus_keyword);
+            $analysis['checks']['keyword'] = $keyword_analysis;
+            $analysis['score'] += $keyword_analysis['score'];
+        }
+
+        // Analyze headings
+        $heading_analysis = self::analyze_headings($content);
+        $analysis['checks']['headings'] = $heading_analysis;
+        $analysis['score'] += $heading_analysis['score'];
+
+        // Analyze readability
+        $readability_analysis = self::analyze_readability($content);
+        $analysis['checks']['readability'] = $readability_analysis;
+        $analysis['score'] += $readability_analysis['score'];
+
+        // Analyze links
+        $links_analysis = self::analyze_links($content);
+        $analysis['checks']['links'] = $links_analysis;
+        $analysis['score'] += $links_analysis['score'];
+
+        // Calculate final score (out of 100)
+        $total_checks = count($analysis['checks']);
+        $analysis['score'] = $total_checks > 0 ? round($analysis['score'] / $total_checks) : 0;
+
+        // Generate suggestions
+        $analysis['suggestions'] = self::generate_suggestions($analysis['checks']);
+
+        return $analysis;
+    }
 }
 
 // Initialize

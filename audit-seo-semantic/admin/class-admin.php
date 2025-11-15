@@ -245,6 +245,22 @@ class Audit_SEO_Semantic_Admin {
     }
 
     /**
+     * AJAX: Quick analyze from meta box
+     */
+    public function ajax_quick_analyze() {
+        check_ajax_referer('audit_seo_nonce', 'nonce');
+
+        $title = sanitize_text_field($_POST['title']);
+        $content = wp_kses_post($_POST['content']);
+        $focus_keyword = sanitize_text_field($_POST['focus_keyword']);
+
+        // Use Gutenberg's analyze method
+        $analysis = Audit_SEO_Gutenberg::analyze_content_raw($title, $content, $focus_keyword);
+
+        wp_send_json_success($analysis);
+    }
+
+    /**
      * Save audit history
      */
     private function save_audit_history($post_id, $audit_type, $results) {
