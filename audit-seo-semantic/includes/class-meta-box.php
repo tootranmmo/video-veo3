@@ -61,6 +61,10 @@ class Audit_SEO_Meta_Box {
                     <strong>SEO Title</strong>
                     <span class="description">Recommended: 30-60 characters</span>
                 </label>
+
+                <!-- Live Title Notification -->
+                <div id="audit-seo-title-notification" class="audit-seo-live-notification" style="display: none;"></div>
+
                 <input
                     type="text"
                     id="audit_seo_title"
@@ -69,6 +73,7 @@ class Audit_SEO_Meta_Box {
                     class="widefat audit-seo-title-input"
                     maxlength="70"
                     placeholder="Enter SEO title..."
+                    data-post-id="<?php echo $post->ID; ?>"
                 >
                 <div class="character-count">
                     <span class="current-count"><?php echo strlen($seo_title); ?></span> / 60 characters
@@ -100,6 +105,10 @@ class Audit_SEO_Meta_Box {
                     <strong>Focus Keyword</strong>
                     <span class="description">Main keyword you want to rank for</span>
                 </label>
+
+                <!-- Live Keyword Notification -->
+                <div id="audit-seo-keyword-notification" class="audit-seo-live-notification" style="display: none;"></div>
+
                 <input
                     type="text"
                     id="audit_seo_focus_keyword"
@@ -107,6 +116,7 @@ class Audit_SEO_Meta_Box {
                     value="<?php echo esc_attr($focus_keyword); ?>"
                     class="widefat audit-seo-keyword-input"
                     placeholder="e.g., WordPress SEO"
+                    data-post-id="<?php echo $post->ID; ?>"
                 >
                 <?php if (!empty($focus_keyword)): ?>
                     <button type="button" class="button audit-seo-analyze-btn" data-post-id="<?php echo $post->ID; ?>">

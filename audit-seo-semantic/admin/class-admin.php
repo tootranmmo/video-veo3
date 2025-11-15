@@ -348,6 +348,146 @@ class Audit_SEO_Semantic_Admin {
     }
 
     /**
+     * AJAX: Live check duplicate title
+     */
+    public function ajax_live_check_title() {
+        check_ajax_referer('audit_seo_nonce', 'nonce');
+
+        $title = sanitize_text_field($_POST['title']);
+        $current_post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+
+        if (empty($title)) {
+            wp_send_json_success(array('has_duplicate' => false));
+            return;
+        }
+
+        global $wpdb;
+
+        // Search for posts with same/similar title
+        $query = $wpdb->prepare(
+            "SELECT ID, post_title FROM {$wpdb->posts}
+             WHERE post_type IN ('post', 'page')
+             AND post_status IN ('publish', 'draft')
+             AND ID != %d
+             AND post_title LIKE %s
+             LIMIT 5",
+            $current_post_id,
+            '%' . $wpdb->esc_like($title) . '%'
+        );
+
+        $duplicates = $wpdb->get_results($query);
+
+        // Also check exact matches
+        $exact_query = $wpdb->prepare(
+            "SELECT ID, post_title FROM {$wpdb->posts}
+             WHERE post_type IN ('post', 'page')
+             AND post_status IN ('publish', 'draft')
+             AND ID != %d
+             AND post_title = %s
+             LIMIT 5",
+            $current_post_id,
+            $title
+        );
+
+        $exact_duplicates = $wpdb->get_results($exact_query);
+
+        $has_duplicate = !empty($exact_duplicates);
+        $has_similar = !empty($duplicates) && empty($exact_duplicates);
+
+        $result = array(
+            'has_duplicate' => $has_duplicate,
+            'has_similar' => $has_similar,
+            'duplicates' => array()
+        );
+
+        if ($has_duplicate) {
+            foreach ($exact_duplicates as $dup) {
+                $result['duplicates'][] = array(
+                    'id' => $dup->ID,
+                    'title' => $dup->post_title,
+                    'edit_url' => get_edit_post_link($dup->ID),
+                    'type' => 'exact'
+                );
+            }
+        } elseif ($has_similar) {
+            foreach ($duplicates as $dup) {
+                $result['duplicates'][] = array(
+                    'id' => $dup->ID,
+                    'title' => $dup->post_title,
+                    'edit_url' => get_edit_post_link($dup->ID),
+                    'type' => 'similar'
+                );
+            }
+        }
+
+        wp_send_json_success($result);
+    }
+
+    /**
+     * AJAX: Live check keyword cannibalization
+     */
+    public function ajax_live_check_keyword() {
+        check_ajax_referer('audit_seo_nonce', 'nonce');
+
+        $keyword = sanitize_text_field($_POST['keyword']);
+        $current_post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+
+        if (empty($keyword)) {
+            wp_send_json_success(array('has_cannibalization' => false));
+            return;
+        }
+
+        global $wpdb;
+
+        // Search for posts with same focus keyword
+        $query = $wpdb->prepare(
+            "SELECT post_id, meta_value FROM {$wpdb->postmeta} pm
+             INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
+             WHERE pm.meta_key = '_audit_seo_focus_keyword'
+             AND pm.meta_value = %s
+             AND pm.post_id != %d
+             AND p.post_status IN ('publish', 'draft')
+             LIMIT 10",
+            $keyword,
+            $current_post_id
+        );
+
+        $competing = $wpdb->get_results($query);
+
+        $has_cannibalization = !empty($competing);
+        $count = count($competing);
+
+        // Determine severity
+        $severity = 'none';
+        if ($count > 3) {
+            $severity = 'high';
+        } elseif ($count > 1) {
+            $severity = 'medium';
+        } elseif ($count > 0) {
+            $severity = 'low';
+        }
+
+        $result = array(
+            'has_cannibalization' => $has_cannibalization,
+            'count' => $count,
+            'severity' => $severity,
+            'competing_posts' => array()
+        );
+
+        if ($has_cannibalization) {
+            foreach ($competing as $post) {
+                $result['competing_posts'][] = array(
+                    'id' => $post->post_id,
+                    'title' => get_the_title($post->post_id),
+                    'edit_url' => get_edit_post_link($post->post_id)
+                );
+            }
+        }
+
+        wp_send_json_success($result);
+    }
+
+    /**
      * Save audit history
      */
     private function save_audit_history($post_id, $audit_type, $results) {

@@ -835,6 +835,142 @@
     margin-top: 15px;
 }
 
+/* Live Notifications */
+.audit-seo-live-notification {
+    margin-bottom: 10px;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.live-alert {
+    padding: 12px 15px;
+    border-radius: 4px;
+    border-left: 4px solid;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.live-alert .dashicons {
+    flex-shrink: 0;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+}
+
+.live-alert strong {
+    font-weight: 600;
+}
+
+/* Error Alert (Duplicate Title) */
+.live-alert.error {
+    background: #ffebee;
+    border-left-color: #d63638;
+    color: #b71c1c;
+}
+
+.live-alert.error .dashicons {
+    color: #d63638;
+}
+
+/* Warning Alert (Similar Title) */
+.live-alert.warning {
+    background: #fff3e0;
+    border-left-color: #ff9800;
+    color: #e65100;
+}
+
+.live-alert.warning .dashicons {
+    color: #ff9800;
+}
+
+/* Success Alert (Unique Keyword) */
+.live-alert.success {
+    background: #e8f5e9;
+    border-left-color: #4caf50;
+    color: #2e7d32;
+}
+
+.live-alert.success .dashicons {
+    color: #4caf50;
+}
+
+/* Cannibalization Alert */
+.live-alert.cannibalization {
+    background: #ffebee;
+    border-left-color: #d63638;
+    color: #b71c1c;
+}
+
+.live-alert.cannibalization.severity-low {
+    background: #fff3e0;
+    border-left-color: #ff9800;
+    color: #e65100;
+}
+
+.live-alert.cannibalization.severity-medium {
+    background: #fbe9e7;
+    border-left-color: #ff5722;
+    color: #d84315;
+}
+
+.live-alert.cannibalization.severity-high {
+    background: #ffebee;
+    border-left-color: #d63638;
+    color: #b71c1c;
+}
+
+/* Checking Indicator */
+.checking {
+    display: inline-block;
+    color: #666;
+    font-style: italic;
+    font-size: 13px;
+}
+
+/* Duplicate Posts List */
+.duplicate-posts-inline {
+    margin: 8px 0 0 0;
+    padding-left: 20px;
+    list-style: disc;
+}
+
+.duplicate-posts-inline li {
+    margin-bottom: 4px;
+}
+
+.duplicate-posts-inline a {
+    color: inherit;
+    text-decoration: underline;
+    font-weight: 500;
+}
+
+.duplicate-posts-inline a:hover {
+    text-decoration: none;
+}
+
+.live-alert .recommendation {
+    margin: 8px 0 0 0;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 3px;
+    font-size: 12px;
+    font-style: italic;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .audit-seo-cards {

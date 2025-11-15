@@ -17,6 +17,8 @@
             this.recheckIssues();
             this.checklistToggle();
             this.refreshChecklist();
+            this.liveTitleCheck();
+            this.liveKeywordCheck();
         },
 
         /**
@@ -292,6 +294,166 @@
                     }
                 });
             });
+        },
+
+        /**
+         * Live title duplicate check with debounce
+         */
+        liveTitleCheck: function() {
+            var typingTimer;
+            var doneTypingInterval = 800; // 800ms after user stops typing
+
+            $('#audit_seo_title').on('input', function() {
+                clearTimeout(typingTimer);
+                var titleInput = $(this);
+                var title = titleInput.val();
+                var postId = titleInput.data('post-id');
+                var notification = $('#audit-seo-title-notification');
+
+                if (title.length < 3) {
+                    notification.hide();
+                    return;
+                }
+
+                // Show checking indicator
+                notification.html('<span class="checking">🔍 Checking for duplicates...</span>').show();
+
+                typingTimer = setTimeout(function() {
+                    $.ajax({
+                        url: auditSeoMetaBox.ajax_url,
+                        type: 'POST',
+                        data: {
+                            action: 'audit_seo_live_check_title',
+                            nonce: auditSeoMetaBox.nonce,
+                            title: title,
+                            post_id: postId
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                MetaBox.displayTitleNotification(response.data);
+                            } else {
+                                notification.hide();
+                            }
+                        },
+                        error: function() {
+                            notification.hide();
+                        }
+                    });
+                }, doneTypingInterval);
+            });
+        },
+
+        /**
+         * Display title notification
+         */
+        displayTitleNotification: function(data) {
+            var notification = $('#audit-seo-title-notification');
+
+            if (data.has_duplicate) {
+                var html = '<div class="live-alert error">';
+                html += '<span class="dashicons dashicons-warning"></span>';
+                html += '<strong>Duplicate Title!</strong> ';
+                html += data.duplicates.length + ' post(s) already have this exact title: ';
+                html += '<ul class="duplicate-posts-inline">';
+                data.duplicates.forEach(function(dup) {
+                    html += '<li><a href="' + dup.edit_url + '" target="_blank">' + dup.title + '</a></li>';
+                });
+                html += '</ul>';
+                html += '</div>';
+                notification.html(html).show();
+            } else if (data.has_similar) {
+                var html = '<div class="live-alert warning">';
+                html += '<span class="dashicons dashicons-info"></span>';
+                html += '<strong>Similar Title Found:</strong> ';
+                html += data.duplicates.length + ' post(s) have similar titles: ';
+                html += '<ul class="duplicate-posts-inline">';
+                data.duplicates.forEach(function(dup) {
+                    html += '<li><a href="' + dup.edit_url + '" target="_blank">' + dup.title + '</a></li>';
+                });
+                html += '</ul>';
+                html += '</div>';
+                notification.html(html).show();
+            } else {
+                notification.hide();
+            }
+        },
+
+        /**
+         * Live keyword cannibalization check with debounce
+         */
+        liveKeywordCheck: function() {
+            var typingTimer;
+            var doneTypingInterval = 800; // 800ms after user stops typing
+
+            $('#audit_seo_focus_keyword').on('input', function() {
+                clearTimeout(typingTimer);
+                var keywordInput = $(this);
+                var keyword = keywordInput.val();
+                var postId = keywordInput.data('post-id');
+                var notification = $('#audit-seo-keyword-notification');
+
+                if (keyword.length < 2) {
+                    notification.hide();
+                    return;
+                }
+
+                // Show checking indicator
+                notification.html('<span class="checking">🔍 Checking for keyword conflicts...</span>').show();
+
+                typingTimer = setTimeout(function() {
+                    $.ajax({
+                        url: auditSeoMetaBox.ajax_url,
+                        type: 'POST',
+                        data: {
+                            action: 'audit_seo_live_check_keyword',
+                            nonce: auditSeoMetaBox.nonce,
+                            keyword: keyword,
+                            post_id: postId
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                MetaBox.displayKeywordNotification(response.data);
+                            } else {
+                                notification.hide();
+                            }
+                        },
+                        error: function() {
+                            notification.hide();
+                        }
+                    });
+                }, doneTypingInterval);
+            });
+        },
+
+        /**
+         * Display keyword notification
+         */
+        displayKeywordNotification: function(data) {
+            var notification = $('#audit-seo-keyword-notification');
+
+            if (data.has_cannibalization) {
+                var severityClass = 'severity-' + data.severity;
+                var severityLabel = data.severity.toUpperCase();
+
+                var html = '<div class="live-alert cannibalization ' + severityClass + '">';
+                html += '<span class="dashicons dashicons-warning"></span>';
+                html += '<strong>Keyword Cannibalization (' + severityLabel + ' Risk)!</strong> ';
+                html += data.count + ' post(s) already target this keyword: ';
+                html += '<ul class="duplicate-posts-inline">';
+                data.competing_posts.forEach(function(post) {
+                    html += '<li><a href="' + post.edit_url + '" target="_blank">' + post.title + '</a></li>';
+                });
+                html += '</ul>';
+                html += '<p class="recommendation">💡 Consider using a different keyword variation or consolidating content.</p>';
+                html += '</div>';
+                notification.html(html).show();
+            } else {
+                // Show success message briefly
+                notification.html('<div class="live-alert success"><span class="dashicons dashicons-yes"></span> Keyword is unique! ✓</div>').show();
+                setTimeout(function() {
+                    notification.fadeOut();
+                }, 3000);
+            }
         }
     };
 

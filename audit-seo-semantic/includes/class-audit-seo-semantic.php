@@ -68,6 +68,8 @@ class Audit_SEO_Semantic {
         add_action('wp_ajax_audit_seo_quick_analyze', array($admin, 'ajax_quick_analyze'));
         add_action('wp_ajax_audit_seo_recheck_issues', array($admin, 'ajax_recheck_seo_issues'));
         add_action('wp_ajax_audit_seo_refresh_checklist', array($admin, 'ajax_refresh_checklist'));
+        add_action('wp_ajax_audit_seo_live_check_title', array($admin, 'ajax_live_check_title'));
+        add_action('wp_ajax_audit_seo_live_check_keyword', array($admin, 'ajax_live_check_keyword'));
     }
 
     /**
