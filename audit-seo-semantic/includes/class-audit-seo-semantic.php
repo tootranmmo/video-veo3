@@ -34,6 +34,15 @@ class Audit_SEO_Semantic {
         require_once AUDIT_SEO_SEMANTIC_PATH . 'includes/class-technical-audit.php';
         require_once AUDIT_SEO_SEMANTIC_PATH . 'includes/class-backlink-audit.php';
         require_once AUDIT_SEO_SEMANTIC_PATH . 'includes/class-content-audit.php';
+
+        // Load advanced features
+        require_once AUDIT_SEO_SEMANTIC_PATH . 'includes/class-scheduler.php';
+        require_once AUDIT_SEO_SEMANTIC_PATH . 'includes/class-link-checker.php';
+        require_once AUDIT_SEO_SEMANTIC_PATH . 'includes/class-schema-builder.php';
+        require_once AUDIT_SEO_SEMANTIC_PATH . 'includes/class-export.php';
+        require_once AUDIT_SEO_SEMANTIC_PATH . 'includes/class-gutenberg.php';
+        require_once AUDIT_SEO_SEMANTIC_PATH . 'includes/class-ai-optimizer.php';
+        require_once AUDIT_SEO_SEMANTIC_PATH . 'includes/class-pagespeed.php';
     }
 
     /**
