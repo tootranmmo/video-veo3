@@ -15,6 +15,8 @@
             this.advancedToggle();
             this.quickAnalysis();
             this.recheckIssues();
+            this.checklistToggle();
+            this.refreshChecklist();
         },
 
         /**
@@ -230,6 +232,60 @@
                     },
                     error: function() {
                         alert('An error occurred during re-check.');
+                    },
+                    complete: function() {
+                        button.prop('disabled', false).html(originalText);
+                    }
+                });
+            });
+        },
+
+        /**
+         * Toggle checklist display
+         */
+        checklistToggle: function() {
+            $('.audit-seo-toggle-checklist').on('click', function(e) {
+                e.preventDefault();
+                $('.audit-seo-checklist-content').slideToggle(300);
+            });
+        },
+
+        /**
+         * Refresh checklist
+         */
+        refreshChecklist: function() {
+            $('.audit-seo-refresh-checklist').on('click', function(e) {
+                e.preventDefault();
+
+                var button = $(this);
+                var postId = button.data('post-id');
+
+                if (!postId) {
+                    alert('Please save the post first.');
+                    return;
+                }
+
+                var originalText = button.html();
+                button.prop('disabled', true).html('<span class="dashicons dashicons-update audit-seo-spin"></span> Refreshing...');
+
+                $.ajax({
+                    url: auditSeoMetaBox.ajax_url,
+                    type: 'POST',
+                    data: {
+                        action: 'audit_seo_refresh_checklist',
+                        nonce: auditSeoMetaBox.nonce,
+                        post_id: postId
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Reload the page to show updated checklist
+                            location.reload();
+                        } else {
+                            alert('Refresh failed: ' + response.data);
+                        }
+                    },
+                    error: function() {
+                        alert('An error occurred during refresh.');
                     },
                     complete: function() {
                         button.prop('disabled', false).html(originalText);

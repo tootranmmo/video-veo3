@@ -679,6 +679,162 @@
     display: inline-block;
 }
 
+/* SEO Checklist */
+.audit-seo-checklist {
+    margin: 20px 0;
+}
+
+.audit-seo-toggle-checklist {
+    width: 100%;
+    text-align: left;
+    padding: 12px 15px;
+    background: #f0f6fc;
+    border: 1px solid #2271b1;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.audit-seo-toggle-checklist:hover {
+    background: #e3f2fd;
+}
+
+.audit-seo-toggle-checklist .dashicons {
+    color: #2271b1;
+}
+
+.checklist-score {
+    margin-left: auto;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.checklist-score.good {
+    background: #4caf50;
+    color: white;
+}
+
+.checklist-score.medium {
+    background: #ff9800;
+    color: white;
+}
+
+.checklist-score.bad {
+    background: #d63638;
+    color: white;
+}
+
+.checklist-stats {
+    font-size: 12px;
+    color: #666;
+    font-weight: normal;
+}
+
+.audit-seo-checklist-content {
+    margin-top: 10px;
+    padding: 15px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.checklist-category {
+    margin-bottom: 20px;
+}
+
+.checklist-category h4 {
+    margin: 0 0 10px 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #f0f0f0;
+    color: #333;
+    font-size: 14px;
+}
+
+.checklist-items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.checklist-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    border-left: 3px solid;
+}
+
+.checklist-item.status-passed {
+    background: #e8f5e9;
+    border-left-color: #4caf50;
+}
+
+.checklist-item.status-error {
+    background: #ffebee;
+    border-left-color: #d63638;
+}
+
+.checklist-item.status-warning {
+    background: #fff3e0;
+    border-left-color: #ff9800;
+}
+
+.checklist-item.status-info {
+    background: #e3f2fd;
+    border-left-color: #2196f3;
+}
+
+.check-icon {
+    font-size: 16px;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.checklist-item.status-passed .check-icon {
+    color: #4caf50;
+}
+
+.checklist-item.status-error .check-icon {
+    color: #d63638;
+}
+
+.checklist-item.status-warning .check-icon {
+    color: #ff9800;
+}
+
+.checklist-item.status-info .check-icon {
+    color: #2196f3;
+}
+
+.check-content {
+    flex: 1;
+}
+
+.check-message {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.check-recommendation {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.5;
+}
+
+.audit-seo-refresh-checklist {
+    margin-top: 15px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .audit-seo-cards {

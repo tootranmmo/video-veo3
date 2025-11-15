@@ -195,6 +195,72 @@ class Audit_SEO_Meta_Box {
             </div>
             <?php endif; ?>
 
+            <!-- On-Page SEO Checklist -->
+            <?php
+            $onpage_results = Audit_SEO_OnPage_Checker::get_results($post->ID);
+            if (!empty($onpage_results) && !empty($onpage_results['checks'])):
+            ?>
+            <div class="audit-seo-checklist">
+                <button type="button" class="audit-seo-toggle-checklist">
+                    <span class="dashicons dashicons-yes"></span>
+                    SEO Checklist
+                    <span class="checklist-score <?php echo $onpage_results['score'] >= 80 ? 'good' : ($onpage_results['score'] >= 60 ? 'medium' : 'bad'); ?>">
+                        <?php echo $onpage_results['score']; ?>%
+                    </span>
+                    <span class="checklist-stats">
+                        (<?php echo $onpage_results['passed_checks']; ?>/<?php echo $onpage_results['total_checks']; ?> passed)
+                    </span>
+                </button>
+
+                <div class="audit-seo-checklist-content" style="display: none;">
+                    <?php
+                    $category_labels = array(
+                        'image_seo' => 'Image SEO',
+                        'linking' => 'Internal & External Links',
+                        'content_structure' => 'Content Structure',
+                        'readability' => 'Readability',
+                        'technical_seo' => 'Technical SEO',
+                        'engagement' => 'Engagement Elements'
+                    );
+
+                    foreach ($onpage_results['checks'] as $category => $checks):
+                        if (empty($checks)) continue;
+                    ?>
+                        <div class="checklist-category">
+                            <h4><?php echo $category_labels[$category]; ?></h4>
+                            <ul class="checklist-items">
+                                <?php foreach ($checks as $check): ?>
+                                    <li class="checklist-item status-<?php echo $check['status']; ?>">
+                                        <span class="check-icon">
+                                            <?php if ($check['status'] === 'passed'): ?>
+                                                ✓
+                                            <?php elseif ($check['status'] === 'error'): ?>
+                                                ✗
+                                            <?php elseif ($check['status'] === 'warning'): ?>
+                                                ⚠
+                                            <?php else: ?>
+                                                ℹ
+                                            <?php endif; ?>
+                                        </span>
+                                        <div class="check-content">
+                                            <div class="check-message"><?php echo esc_html($check['message']); ?></div>
+                                            <?php if (!empty($check['recommendation'])): ?>
+                                                <div class="check-recommendation"><?php echo esc_html($check['recommendation']); ?></div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    <?php endforeach; ?>
+
+                    <button type="button" class="button button-secondary audit-seo-refresh-checklist" data-post-id="<?php echo $post->ID; ?>">
+                        <span class="dashicons dashicons-update"></span> Refresh Checklist
+                    </button>
+                </div>
+            </div>
+            <?php endif; ?>
+
             <!-- SERP Preview -->
             <div class="audit-seo-field">
                 <label><strong>Google Preview</strong></label>
@@ -425,8 +491,10 @@ class Audit_SEO_Meta_Box {
         }
 
         // Save Focus Keyword
+        $focus_keyword = '';
         if (isset($_POST['audit_seo_focus_keyword'])) {
-            update_post_meta($post_id, '_audit_seo_focus_keyword', sanitize_text_field($_POST['audit_seo_focus_keyword']));
+            $focus_keyword = sanitize_text_field($_POST['audit_seo_focus_keyword']);
+            update_post_meta($post_id, '_audit_seo_focus_keyword', $focus_keyword);
         }
 
         // Save Canonical URL
@@ -446,6 +514,13 @@ class Audit_SEO_Meta_Box {
             $robots_meta[] = 'noarchive';
         }
         update_post_meta($post_id, '_audit_seo_robots_meta', implode(',', $robots_meta));
+
+        // Run on-page SEO checks
+        if ($post->post_status === 'publish' || $post->post_status === 'draft') {
+            $title = isset($_POST['audit_seo_title']) ? sanitize_text_field($_POST['audit_seo_title']) : $post->post_title;
+            $results = Audit_SEO_OnPage_Checker::run_all_checks($post_id, $post->post_content, $title, $focus_keyword);
+            Audit_SEO_OnPage_Checker::save_results($post_id, $results);
+        }
     }
 
     /**

@@ -45,6 +45,7 @@ class Audit_SEO_Semantic {
         require_once AUDIT_SEO_SEMANTIC_PATH . 'includes/class-pagespeed.php';
         require_once AUDIT_SEO_SEMANTIC_PATH . 'includes/class-duplicate-checker.php';
         require_once AUDIT_SEO_SEMANTIC_PATH . 'includes/class-keyword-cannibalization.php';
+        require_once AUDIT_SEO_SEMANTIC_PATH . 'includes/class-onpage-checker.php';
         require_once AUDIT_SEO_SEMANTIC_PATH . 'includes/class-meta-box.php';
     }
 
@@ -66,6 +67,7 @@ class Audit_SEO_Semantic {
         add_action('wp_ajax_delete_backlink', array($admin, 'ajax_delete_backlink'));
         add_action('wp_ajax_audit_seo_quick_analyze', array($admin, 'ajax_quick_analyze'));
         add_action('wp_ajax_audit_seo_recheck_issues', array($admin, 'ajax_recheck_seo_issues'));
+        add_action('wp_ajax_audit_seo_refresh_checklist', array($admin, 'ajax_refresh_checklist'));
     }
 
     /**

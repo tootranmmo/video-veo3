@@ -313,6 +313,41 @@ class Audit_SEO_Semantic_Admin {
     }
 
     /**
+     * AJAX: Refresh on-page SEO checklist
+     */
+    public function ajax_refresh_checklist() {
+        check_ajax_referer('audit_seo_nonce', 'nonce');
+
+        $post_id = intval($_POST['post_id']);
+
+        if (!$post_id) {
+            wp_send_json_error('Invalid post ID');
+        }
+
+        // Get post
+        $post = get_post($post_id);
+        if (!$post) {
+            wp_send_json_error('Post not found');
+        }
+
+        // Get SEO meta
+        $title = get_post_meta($post_id, '_audit_seo_title', true);
+        if (empty($title)) {
+            $title = $post->post_title;
+        }
+        $focus_keyword = get_post_meta($post_id, '_audit_seo_focus_keyword', true);
+
+        // Run all on-page checks
+        $results = Audit_SEO_OnPage_Checker::run_all_checks($post_id, $post->post_content, $title, $focus_keyword);
+        Audit_SEO_OnPage_Checker::save_results($post_id, $results);
+
+        wp_send_json_success(array(
+            'results' => $results,
+            'message' => 'Checklist refreshed successfully'
+        ));
+    }
+
+    /**
      * Save audit history
      */
     private function save_audit_history($post_id, $audit_type, $results) {
