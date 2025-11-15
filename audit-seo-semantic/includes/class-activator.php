@@ -46,9 +46,31 @@ class Audit_SEO_Semantic_Activator {
             KEY audit_type (audit_type)
         ) $charset_collate;";
 
+        // Create PageSpeed table
+        $table_pagespeed = $wpdb->prefix . 'audit_seo_pagespeed';
+        $sql_pagespeed = "CREATE TABLE IF NOT EXISTS $table_pagespeed (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            url varchar(255) NOT NULL,
+            strategy varchar(20) NOT NULL DEFAULT 'mobile',
+            performance_score int(3) DEFAULT 0,
+            accessibility_score int(3) DEFAULT 0,
+            best_practices_score int(3) DEFAULT 0,
+            seo_score int(3) DEFAULT 0,
+            lcp_value decimal(10,2) DEFAULT 0,
+            cls_value decimal(10,4) DEFAULT 0,
+            tbt_value decimal(10,2) DEFAULT 0,
+            full_results longtext,
+            tested_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY  (id),
+            KEY url (url),
+            KEY strategy (strategy),
+            KEY tested_at (tested_at)
+        ) $charset_collate;";
+
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql_backlinks);
         dbDelta($sql_history);
+        dbDelta($sql_pagespeed);
 
         // Set default options
         add_option('audit_seo_semantic_version', AUDIT_SEO_SEMANTIC_VERSION);

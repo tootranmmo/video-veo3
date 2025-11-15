@@ -4,6 +4,8 @@
  */
 if (!defined('ABSPATH')) exit;
 
+global $wpdb;
+
 $recent_audits = $wpdb->get_results(
     "SELECT * FROM {$wpdb->prefix}audit_seo_history
      ORDER BY created_at DESC
